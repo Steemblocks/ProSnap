@@ -291,6 +291,11 @@ The editor maintains a global STATE object containing:
 
 ## Version History
 
+### v1.2.1
+
+- Rebranded to PrimeShot
+- Improved internal naming consistency
+
 ### v1.2.0
 
 - Improved text annotation interface with toolbar
