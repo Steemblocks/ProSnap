@@ -1,5 +1,5 @@
 /**
- * ProSnap Content Script
+ * PrimeShot Content Script
  * 2026 Professional Edition
  *
  * Uses dynamic imports for modular architecture
@@ -7,7 +7,7 @@
 
 // Debug mode - set to false for production
 const DEBUG = false;
-const log = (...args) => DEBUG && console.log("[ProSnap]", ...args);
+const log = (...args) => DEBUG && console.log("[PrimeShot]", ...args);
 
 // --- Dynamic Module Loading ---
 let STATE, CONSTANTS, ELEMENTS_CONTENT, initializeElements;
@@ -224,8 +224,8 @@ function setupEvents() {
 
 function cleanup() {
   // Remove shadow hosts (handle both old and new naming)
-  const host = document.getElementById("prosnap-host");
-  const shadowHost = document.getElementById("prosnap-shadow-host");
+  const host = document.getElementById("primeshot-host");
+  const shadowHost = document.getElementById("primeshot-shadow-host");
   if (host) host.remove();
   if (shadowHost) shadowHost.remove();
 
@@ -462,7 +462,7 @@ function onKeyDown(e) {
     // Update toolbar buttons
     if (elements.shadow) {
       const buttons = elements.shadow.querySelectorAll(
-        ".prosnap-btn[data-mode]",
+        ".primeshot-btn[data-mode]",
       );
       buttons.forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.mode === SHORTCUTS[key]);
@@ -628,7 +628,7 @@ function draw() {
       drawHandles(ctx);
     }
   } catch (err) {
-    console.error("[ProSnap] Draw error:", err);
+    console.error("[PrimeShot] Draw error:", err);
   }
 }
 
@@ -776,8 +776,8 @@ function createTextInput(x, y) {
   }
 
   const input = document.createElement("textarea");
-  input.id = "prosnap-text-input";
-  input.className = "prosnap-text-input";
+  input.id = "primeshot-text-input";
+  input.className = "primeshot-text-input";
   input.style.left = x + "px";
   input.style.top = y + "px";
   input.style.color = STATE.color;
@@ -877,7 +877,8 @@ function showToolbars() {
 
   // Vertical Toolbar (Tools) - Right side of selection
   elements.toolbarVert = document.createElement("div");
-  elements.toolbarVert.className = "prosnap-toolbar prosnap-toolbar-vertical";
+  elements.toolbarVert.className =
+    "primeshot-toolbar primeshot-toolbar-vertical";
 
   // Smart Positioning: Vertical
   // Default Right -> Flip Left if overflow -> Fit Inside/Right if both fail
@@ -924,7 +925,7 @@ function showToolbars() {
     : allTools;
 
   const toolGrid = document.createElement("div");
-  toolGrid.className = "prosnap-tool-grid";
+  toolGrid.className = "primeshot-tool-grid";
 
   tools.forEach((t) => {
     const btn = createBtn(t.icon, () => setMode(t.id), t.id === STATE.mode);
@@ -936,14 +937,14 @@ function showToolbars() {
 
   // Divider & Color Picker...
   const div = document.createElement("div");
-  div.className = "prosnap-divider";
+  div.className = "primeshot-divider";
   elements.toolbarVert.appendChild(div);
 
   const colorContainer = document.createElement("div");
-  colorContainer.className = "prosnap-color-picker";
+  colorContainer.className = "primeshot-color-picker";
   COLORS.forEach((c) => {
     const dot = document.createElement("div");
-    dot.className = "prosnap-color-dot";
+    dot.className = "primeshot-color-dot";
     dot.style.backgroundColor = c;
     if (c === STATE.color) dot.classList.add("active");
     dot.addEventListener("click", () => setColor(c, dot));
@@ -952,16 +953,16 @@ function showToolbars() {
 
   // Custom Color...
   const customColorWrapper = document.createElement("div");
-  customColorWrapper.className = "prosnap-custom-color";
+  customColorWrapper.className = "primeshot-custom-color";
   customColorWrapper.title = "Pick custom color";
   const customColorInput = document.createElement("input");
   customColorInput.type = "color";
-  customColorInput.className = "prosnap-color-input";
+  customColorInput.className = "primeshot-color-input";
   customColorInput.value = STATE.color;
   customColorInput.addEventListener("input", (e) => {
     STATE.color = e.target.value;
     if (elements.shadow) {
-      const dots = elements.shadow.querySelectorAll(".prosnap-color-dot");
+      const dots = elements.shadow.querySelectorAll(".primeshot-color-dot");
       dots.forEach((d) => d.classList.remove("active"));
     }
     if (elements.textInput) elements.textInput.style.color = STATE.color;
@@ -975,9 +976,9 @@ function showToolbars() {
   // Font Picker...
   elements.toolbarVert.appendChild(div.cloneNode());
   const fontContainer = document.createElement("div");
-  fontContainer.className = "prosnap-font-picker";
+  fontContainer.className = "primeshot-font-picker";
   const fontSelect = document.createElement("select");
-  fontSelect.className = "prosnap-font-select";
+  fontSelect.className = "primeshot-font-select";
   fontSelect.title = "Select Font";
   FONTS.forEach((f) => {
     const option = document.createElement("option");
@@ -999,13 +1000,13 @@ function showToolbars() {
   // Line Width...
   elements.toolbarVert.appendChild(div.cloneNode());
   const lineWidthContainer = document.createElement("div");
-  lineWidthContainer.className = "prosnap-line-width";
+  lineWidthContainer.className = "primeshot-line-width";
   const lineWidthLabel = document.createElement("span");
-  lineWidthLabel.className = "prosnap-line-width-label";
+  lineWidthLabel.className = "primeshot-line-width-label";
   lineWidthLabel.textContent = "Size";
   const lineWidthSlider = document.createElement("input");
   lineWidthSlider.type = "range";
-  lineWidthSlider.className = "prosnap-line-width-slider";
+  lineWidthSlider.className = "primeshot-line-width-slider";
   lineWidthSlider.min = "1";
   lineWidthSlider.max = "20";
   lineWidthSlider.value = STATE.lineWidth;
@@ -1026,7 +1027,7 @@ function showToolbars() {
   // Horizontal Toolbar (Actions) - Position BELOW selection, never overlapping with vertical
   elements.toolbarHoriz = document.createElement("div");
   elements.toolbarHoriz.className =
-    "prosnap-toolbar prosnap-toolbar-horizontal";
+    "primeshot-toolbar primeshot-toolbar-horizontal";
 
   // Smart Positioning: Horizontal
   const hWidth = 320;
@@ -1093,7 +1094,7 @@ function showToolbars() {
     elements.toolbarHoriz.appendChild(btn);
     if (a.id !== "close") {
       const d = document.createElement("div");
-      d.className = "prosnap-divider";
+      d.className = "primeshot-divider";
       elements.toolbarHoriz.appendChild(d);
     }
   });
@@ -1111,7 +1112,7 @@ function hideToolbars() {
 
 function createBtn(html, onClick, isActive) {
   const btn = document.createElement("button");
-  btn.className = "prosnap-btn";
+  btn.className = "primeshot-btn";
   if (isActive) btn.classList.add("active");
 
   // Use text/html parser which handles SVGs without explicit xmlns
@@ -1138,7 +1139,7 @@ function setMode(m) {
 
   // Update UI active state logic
   if (elements.toolbarVert) {
-    Array.from(elements.toolbarVert.querySelectorAll(".prosnap-btn")).forEach(
+    Array.from(elements.toolbarVert.querySelectorAll(".primeshot-btn")).forEach(
       (b) => {
         if (b.dataset.mode) {
           if (b.dataset.mode === STATE.mode) b.classList.add("active");
@@ -1153,7 +1154,7 @@ function setColor(c, dotEl) {
   STATE.color = c;
   // Query within Shadow DOM instead of document
   if (elements.shadow) {
-    const dots = elements.shadow.querySelectorAll(".prosnap-color-dot");
+    const dots = elements.shadow.querySelectorAll(".primeshot-color-dot");
     dots.forEach((d) => d.classList.remove("active"));
   }
   dotEl.classList.add("active");
@@ -1220,7 +1221,7 @@ function printScreenshot() {
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Print Screenshot - ProSnap</title>
+      <title>Print Screenshot - PrimeShot</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {

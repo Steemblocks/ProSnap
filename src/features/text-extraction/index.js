@@ -69,7 +69,7 @@ export class TextExtractionManager {
 
     // Trigger a redraw to restore the annotation view
     window.dispatchEvent(
-      new CustomEvent("prosnap:redraw", {
+      new CustomEvent("primeshot:redraw", {
         detail: { fullRedraw: true },
       }),
     );

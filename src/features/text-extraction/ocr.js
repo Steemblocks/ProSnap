@@ -21,7 +21,7 @@ function ensureOCRFrame() {
   }
 
   ocrFrame = document.createElement("iframe");
-  ocrFrame.id = "prosnap-ocr-frame";
+  ocrFrame.id = "primeshot-ocr-frame";
 
   // Get sandbox URL with error handling
   let sandboxUrl;

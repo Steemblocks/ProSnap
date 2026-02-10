@@ -1,5 +1,5 @@
 /**
- * Global state management for ProSnap
+ * Global state management for PrimeShot
  * Centralized state object shared across all modules
  */
 
@@ -142,33 +142,33 @@ export function initializeElements(isContentScript = true, options = {}) {
   if (isContentScript) {
     // Content script uses Shadow DOM
     // Check if already initialized
-    const existingHost = document.getElementById("prosnap-shadow-host");
+    const existingHost = document.getElementById("primeshot-shadow-host");
     if (existingHost && ELEMENTS_CONTENT.shadowRoot) {
       log("Shadow DOM already initialized, reusing existing elements");
       return ELEMENTS_CONTENT;
     }
 
     const host = document.createElement("div");
-    host.id = "prosnap-shadow-host";
+    host.id = "primeshot-shadow-host";
     document.body.appendChild(host);
 
     ELEMENTS_CONTENT.shadowRoot = host.attachShadow({ mode: "open" });
     ELEMENTS_CONTENT.shadow = ELEMENTS_CONTENT.shadowRoot;
 
     const overlay = document.createElement("div");
-    overlay.id = "prosnap-overlay";
+    overlay.id = "primeshot-overlay";
     overlay.style.cssText =
       "position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;";
     ELEMENTS_CONTENT.shadowRoot.appendChild(overlay);
     ELEMENTS_CONTENT.overlay = overlay;
 
     const canvas = document.createElement("canvas");
-    canvas.id = "prosnap-canvas";
+    canvas.id = "primeshot-canvas";
     overlay.appendChild(canvas);
     ELEMENTS_CONTENT.canvas = canvas;
 
     const toast = document.createElement("div");
-    toast.id = "prosnap-toast";
+    toast.id = "primeshot-toast";
     toast.style.cssText =
       "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e1e1e;color:#fff;padding:8px 16px;border-radius:4px;font-size:14px;pointer-events:none;opacity:0;transition:opacity 0.3s;z-index:2147483650;";
     ELEMENTS_CONTENT.shadowRoot.appendChild(toast);

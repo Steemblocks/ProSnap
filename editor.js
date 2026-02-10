@@ -1,4 +1,4 @@
-// ProSnap Standalone Editor Script
+// PrimeShot Standalone Editor Script
 // Matches the inline content.js editor behavior
 
 // Debug mode - set to false for production
@@ -1626,7 +1626,7 @@ function saveScreenshot() {
     cvs = applyBackground(cvs);
   }
   const link = document.createElement("a");
-  link.download = `prosnap_${Date.now()}.png`;
+  link.download = `primeshot_${Date.now()}.png`;
   link.href = cvs.toDataURL("image/png");
   link.click();
   showToast("Screenshot Saved!");

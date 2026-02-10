@@ -1,4 +1,4 @@
-// ProSnap Popup Script
+// PrimeShot Popup Script
 
 document.getElementById("captureBtn").addEventListener("click", async () => {
   try {
@@ -8,7 +8,7 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
       currentWindow: true,
     });
     if (!tab) {
-      console.error("ProSnap: No active tab found");
+      console.error("PrimeShot: No active tab found");
       return;
     }
 
@@ -26,7 +26,7 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
     // Close popup after everything succeeds
     window.close();
   } catch (err) {
-    console.error("ProSnap: Failed to capture screenshot", err);
+    console.error("PrimeShot: Failed to capture screenshot", err);
     // Show error to user (popup is still open since we didn't close it)
     const btn = document.getElementById("captureBtn");
     const originalText = btn.textContent;

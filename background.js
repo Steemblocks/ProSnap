@@ -1,4 +1,4 @@
-// Background service worker for ProSnap
+// Background service worker for PrimeShot
 
 // Note: When a popup is defined in manifest, onClicked doesn't fire.
 // However, the keyboard shortcut (_execute_action) will still trigger this.

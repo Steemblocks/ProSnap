@@ -1,8 +1,8 @@
-/* ProSnap Styles */
+/* PrimeShot Styles */
 /* Note: Using system fonts since custom fonts don't work well in Shadow DOM */
 
 /* Custom crosshair cursor - white with black outline for visibility on any background */
-#prosnap-overlay {
+#primeshot-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -26,14 +26,14 @@
   user-select: none;
 }
 
-#prosnap-canvas {
+#primeshot-canvas {
   display: block;
   width: 100%;
   height: 100%;
 }
 
 /* Toolbars */
-.prosnap-toolbar {
+.primeshot-toolbar {
   position: absolute;
   background-color: #1e1e1e; /* Dark theme */
   border-radius: 6px;
@@ -45,23 +45,23 @@
   border: 1px solid rgba(255, 255, 255, 0.15); /* Improved contrast for mixed backgrounds */
 }
 
-.prosnap-toolbar-vertical {
+.primeshot-toolbar-vertical {
   flex-direction: column;
   width: auto;
 }
 
-.prosnap-toolbar-horizontal {
+.primeshot-toolbar-horizontal {
   flex-direction: row;
 }
 
 /* Tool grid - 2 columns */
-.prosnap-tool-grid {
+.primeshot-tool-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 3px;
 }
 
-.prosnap-btn {
+.primeshot-btn {
   width: 28px;
   height: 28px;
   border: none;
@@ -75,36 +75,36 @@
   transition: all 0.15s ease;
 }
 
-.prosnap-btn:hover {
+.primeshot-btn:hover {
   background-color: #333;
   color: #fff;
 }
 
-.prosnap-btn.active {
+.primeshot-btn.active {
   background-color: #2563eb; /* Professional Blue */
   color: #fff;
 }
 
-.prosnap-btn svg {
+.primeshot-btn svg {
   width: 16px;
   height: 16px;
   fill: currentColor;
 }
 
-.prosnap-divider {
+.primeshot-divider {
   width: 100%;
   height: 1px;
   background-color: #333;
   margin: 3px 0;
 }
-.prosnap-toolbar-horizontal .prosnap-divider {
+.primeshot-toolbar-horizontal .primeshot-divider {
   width: 1px;
   height: 100%;
   margin: 0 2px;
 }
 
 /* Color Picker - horizontal row */
-.prosnap-color-picker {
+.primeshot-color-picker {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -114,7 +114,7 @@
   max-width: 70px;
 }
 
-.prosnap-color-dot {
+.primeshot-color-dot {
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -122,16 +122,16 @@
   cursor: pointer;
   transition: transform 0.1s;
 }
-.prosnap-color-dot:hover {
+.primeshot-color-dot:hover {
   transform: scale(1.15);
 }
-.prosnap-color-dot.active {
+.primeshot-color-dot.active {
   border-color: #fff;
   box-shadow: 0 0 0 1px #2563eb;
 }
 
 /* Custom Color Picker */
-.prosnap-custom-color {
+.primeshot-custom-color {
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -144,12 +144,12 @@
     border-color 0.2s;
 }
 
-.prosnap-custom-color:hover {
+.primeshot-custom-color:hover {
   transform: scale(1.15);
   border-color: #fff;
 }
 
-.prosnap-color-input {
+.primeshot-color-input {
   width: 100%;
   height: 100%;
   opacity: 0;
@@ -157,8 +157,8 @@
 }
 
 /* Text Input */
-#prosnap-text-input,
-.prosnap-text-input {
+#primeshot-text-input,
+.primeshot-text-input {
   position: absolute;
   background: rgba(0, 0, 0, 0.7);
   border: 2px solid #2563eb;
@@ -176,19 +176,19 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-#prosnap-text-input::placeholder,
-.prosnap-text-input::placeholder {
+#primeshot-text-input::placeholder,
+.primeshot-text-input::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
 /* Font Picker */
-.prosnap-font-picker {
+.primeshot-font-picker {
   padding: 2px;
   display: flex;
   justify-content: center;
 }
 
-.prosnap-font-select {
+.primeshot-font-select {
   width: 100%;
   max-width: 64px;
   padding: 3px 4px;
@@ -202,22 +202,22 @@
   transition: background-color 0.2s;
 }
 
-.prosnap-font-select:hover {
+.primeshot-font-select:hover {
   background-color: #444;
 }
 
-.prosnap-font-select:focus {
+.primeshot-font-select:focus {
   background-color: #2563eb;
 }
 
-.prosnap-font-select option {
+.primeshot-font-select option {
   background-color: #1e1e1e;
   color: #fff;
   padding: 4px;
 }
 
 /* Toast/Notification */
-.prosnap-toast {
+.primeshot-toast {
   position: fixed;
   bottom: 20px;
   left: 50%;
@@ -234,12 +234,12 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   border: 1px solid #333;
 }
-.prosnap-toast.show {
+.primeshot-toast.show {
   opacity: 1;
 }
 
 /* Line Width Slider */
-.prosnap-line-width {
+.primeshot-line-width {
   padding: 2px;
   display: flex;
   flex-direction: column;
@@ -247,13 +247,13 @@
   gap: 2px;
 }
 
-.prosnap-line-width-label {
+.primeshot-line-width-label {
   font-size: 8px;
   color: #888;
   text-transform: uppercase;
 }
 
-.prosnap-line-width-slider {
+.primeshot-line-width-slider {
   -webkit-appearance: none;
   appearance: none;
   width: 50px;
@@ -264,7 +264,7 @@
   cursor: pointer;
 }
 
-.prosnap-line-width-slider::-webkit-slider-thumb {
+.primeshot-line-width-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 10px;
   height: 10px;
@@ -274,11 +274,11 @@
   transition: background 0.2s;
 }
 
-.prosnap-line-width-slider::-webkit-slider-thumb:hover {
+.primeshot-line-width-slider::-webkit-slider-thumb:hover {
   background: #3b82f6;
 }
 
-.prosnap-line-width-slider::-moz-range-thumb {
+.primeshot-line-width-slider::-moz-range-thumb {
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -288,7 +288,7 @@
 }
 
 /* Keyboard Shortcuts Help */
-.prosnap-shortcuts {
+.primeshot-shortcuts {
   position: fixed;
   bottom: 60px;
   left: 50%;
@@ -306,7 +306,7 @@
   border: 1px solid #333;
 }
 
-.prosnap-shortcuts kbd {
+.primeshot-shortcuts kbd {
   background: #333;
   padding: 2px 6px;
   border-radius: 3px;
@@ -316,7 +316,7 @@
 }
 
 /* Text Extraction - Professional Panel Mode */
-.prosnap-text-overlay-layer {
+.primeshot-text-overlay-layer {
   position: absolute;
   top: 60px;
   left: 0;
@@ -328,7 +328,7 @@
 }
 
 /* Text word boxes - subtle background highlights */
-.prosnap-text-word-box {
+.primeshot-text-word-box {
   position: absolute;
   background-color: rgba(255, 193, 7, 0.3);
   border: 1px solid rgba(255, 193, 7, 0.4);
@@ -349,7 +349,7 @@
 }
 
 /* Text Mode Header */
-.prosnap-text-mode-header {
+.primeshot-text-mode-header {
   position: fixed;
   top: 0;
   left: 0;
@@ -365,7 +365,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.prosnap-copy-all-btn {
+.primeshot-copy-all-btn {
   padding: 8px 16px;
   background: #2563eb;
   color: #fff;
@@ -378,16 +378,16 @@
   white-space: nowrap;
 }
 
-.prosnap-copy-all-btn:hover {
+.primeshot-copy-all-btn:hover {
   background: #1d4ed8;
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
 }
 
-.prosnap-copy-all-btn:active {
+.primeshot-copy-all-btn:active {
   transform: scale(0.98);
 }
 
-.prosnap-text-header-title {
+.primeshot-text-header-title {
   color: #aaa;
   font-size: 13px;
   font-weight: 500;
@@ -395,7 +395,7 @@
 }
 
 /* Text Panel with editable textarea */
-.prosnap-text-panel {
+.primeshot-text-panel {
   position: fixed;
   top: 60px;
   left: 20px;
@@ -411,14 +411,14 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
-.prosnap-text-controls {
+.primeshot-text-controls {
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
   flex-wrap: wrap;
 }
 
-.prosnap-text-btn {
+.primeshot-text-btn {
   padding: 6px 12px;
   background: #333;
   color: #ddd;
@@ -430,24 +430,24 @@
   transition: all 0.2s ease;
 }
 
-.prosnap-text-btn:hover {
+.primeshot-text-btn:hover {
   background: #444;
   color: #fff;
   border-color: #666;
 }
 
-.prosnap-text-btn:active {
+.primeshot-text-btn:active {
   transform: scale(0.98);
 }
 
-.prosnap-text-area {
+.primeshot-text-area {
   flex: 1;
   background: rgba(20, 20, 20, 0.8);
   color: #ddd;
   border: 1px solid #555;
   border-radius: 4px;
   padding: 10px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 13px;
   line-height: 1.5;
   resize: none;
@@ -457,17 +457,17 @@
   white-space: pre-wrap;
 }
 
-.prosnap-text-area:focus {
+.primeshot-text-area:focus {
   border-color: #2563eb;
   box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
 }
 
-.prosnap-text-area::selection {
+.primeshot-text-area::selection {
   background-color: rgba(37, 99, 235, 0.5);
 }
 
 /* Text Mode Exit Button */
-.prosnap-text-mode-exit {
+.primeshot-text-mode-exit {
   position: fixed;
   bottom: 30px;
   left: 50%;
@@ -485,12 +485,12 @@
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.prosnap-text-mode-exit:hover {
+.primeshot-text-mode-exit:hover {
   background: #1d4ed8;
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
   transform: translateX(-50%) translateY(-2px);
 }
 
-.prosnap-text-mode-exit:active {
+.primeshot-text-mode-exit:active {
   transform: translateX(-50%) translateY(0);
 }

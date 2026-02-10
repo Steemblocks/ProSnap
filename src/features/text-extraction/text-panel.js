@@ -45,12 +45,12 @@ export class TextPanel {
     // Create header
     this.elements.header = document.createElement("div");
     this.elements.header.className = this.isContentScript
-      ? "prosnap-text-mode-header"
+      ? "primeshot-text-mode-header"
       : "text-mode-header";
 
     const copyAllBtn = document.createElement("button");
     copyAllBtn.className = this.isContentScript
-      ? "prosnap-copy-all-btn"
+      ? "primeshot-copy-all-btn"
       : "copy-all-btn";
     copyAllBtn.textContent = "Copy all text";
     copyAllBtn.addEventListener("click", () => {
@@ -59,7 +59,7 @@ export class TextPanel {
 
     const title = document.createElement("div");
     title.className = this.isContentScript
-      ? "prosnap-text-header-title"
+      ? "primeshot-text-header-title"
       : "text-header-title";
     title.textContent = "Text Detection";
 
@@ -70,13 +70,13 @@ export class TextPanel {
     // Create text panel
     this.elements.panel = document.createElement("div");
     this.elements.panel.className = this.isContentScript
-      ? "prosnap-text-panel"
+      ? "primeshot-text-panel"
       : "text-panel";
 
     const controls = this._createControls();
     this.elements.textArea = document.createElement("textarea");
     this.elements.textArea.className = this.isContentScript
-      ? "prosnap-text-area"
+      ? "primeshot-text-area"
       : "text-area";
     this.elements.textArea.value = fullText;
     this.elements.textArea.readOnly = false;
@@ -94,7 +94,7 @@ export class TextPanel {
     // Create exit button
     this.elements.exitBtn = document.createElement("button");
     this.elements.exitBtn.className = this.isContentScript
-      ? "prosnap-text-mode-exit"
+      ? "primeshot-text-mode-exit"
       : "text-mode-exit";
     this.elements.exitBtn.textContent = "Exit Text Mode";
     this.elements.exitBtn.addEventListener("click", () => {
@@ -107,12 +107,12 @@ export class TextPanel {
   _createControls() {
     const controls = document.createElement("div");
     controls.className = this.isContentScript
-      ? "prosnap-text-controls"
+      ? "primeshot-text-controls"
       : "text-controls";
 
     const selectAllBtn = document.createElement("button");
     selectAllBtn.className = this.isContentScript
-      ? "prosnap-text-btn"
+      ? "primeshot-text-btn"
       : "text-btn";
     selectAllBtn.textContent = "Select All (Ctrl+A)";
     selectAllBtn.addEventListener("click", () => {
@@ -120,7 +120,9 @@ export class TextPanel {
     });
 
     const copyBtn = document.createElement("button");
-    copyBtn.className = this.isContentScript ? "prosnap-text-btn" : "text-btn";
+    copyBtn.className = this.isContentScript
+      ? "primeshot-text-btn"
+      : "text-btn";
     copyBtn.textContent = "Copy Selected (Ctrl+C)";
     copyBtn.addEventListener("click", () => {
       const textArea = this.elements.textArea;
@@ -147,7 +149,7 @@ export class TextPanel {
   _renderWordHighlights(words) {
     const container = document.createElement("div");
     container.className = this.isContentScript
-      ? "prosnap-text-overlay-layer"
+      ? "primeshot-text-overlay-layer"
       : "text-overlay-layer";
 
     const sel = STATE.selection || { x: 0, y: 0 };
@@ -156,7 +158,7 @@ export class TextPanel {
     words.forEach((w) => {
       const el = document.createElement("div");
       el.className = this.isContentScript
-        ? "prosnap-text-word-box"
+        ? "primeshot-text-word-box"
         : "text-word-box";
       el.textContent = w.text;
       el.title = `"${w.text}"`;

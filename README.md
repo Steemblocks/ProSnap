@@ -1,6 +1,6 @@
-# ProSnap - Screenshot & Annotation Tool
+# PrimeShot - Screenshot & Annotation Tool
 
-ProSnap is a powerful Chrome extension for capturing, annotating, and sharing screenshots with ease. It provides a complete suite of annotation tools, text detection, and image manipulation features.
+PrimeShot is a powerful Chrome extension for capturing, annotating, and sharing screenshots with ease. It provides a complete suite of annotation tools, text detection, and image manipulation features.
 
 ## Features
 
@@ -55,15 +55,17 @@ ProSnap is a powerful Chrome extension for capturing, annotating, and sharing sc
 ### Installation Steps
 
 1. **Clone or Download the Repository**
+
    ```bash
    # If using git
    git clone <repository-url>
    cd Screenshot\ Extension
-   
+
    # Or download and extract the ZIP file
    ```
 
 2. **Install Dependencies (Optional)**
+
    ```bash
    npm install
    ```
@@ -73,10 +75,10 @@ ProSnap is a powerful Chrome extension for capturing, annotating, and sharing sc
    - Enable "Developer mode" (toggle in top-right corner)
    - Click "Load unpacked"
    - Select the `Screenshot Extension` folder
-   - The ProSnap extension should now appear in your Chrome extensions
+   - The PrimeShot extension should now appear in your Chrome extensions
 
 4. **Verify Installation**
-   - Click the ProSnap icon in your Chrome toolbar
+   - Click the PrimeShot icon in your Chrome toolbar
    - The extension icon should be visible and clickable
    - Keyboard shortcut is `Alt+Shift+S`
 
@@ -84,7 +86,7 @@ ProSnap is a powerful Chrome extension for capturing, annotating, and sharing sc
 
 ### Taking a Screenshot
 
-1. Click the ProSnap icon in the Chrome toolbar, or press `Alt+Shift+S`
+1. Click the PrimeShot icon in the Chrome toolbar, or press `Alt+Shift+S`
 2. Select the area you want to capture using the selection tool
 3. Adjust the selection by dragging corners or edges if needed
 4. The editor will open with the captured screenshot
@@ -92,6 +94,7 @@ ProSnap is a powerful Chrome extension for capturing, annotating, and sharing sc
 ### Using Annotation Tools
 
 #### Text Tool
+
 1. Select "Text Tool (T)" from the toolbar
 2. Click anywhere to create a new text annotation
 3. Type your text in the editor
@@ -102,6 +105,7 @@ ProSnap is a powerful Chrome extension for capturing, annotating, and sharing sc
 5. Click "Done" to save or "Cancel" to discard
 
 #### Editing Existing Text
+
 1. Click on any text annotation to edit it
 2. Or in Text mode (T), click on existing text
 3. Make your changes
@@ -109,17 +113,20 @@ ProSnap is a powerful Chrome extension for capturing, annotating, and sharing sc
 5. Or press Escape/click Cancel to discard
 
 #### Drawing Tools
+
 1. Select a drawing tool (Pen, Line, Arrow, Rectangle, Circle)
 2. Click and drag to draw
 3. The tool will automatically save when you release the mouse
 4. Use the color picker and line width controls to customize appearance
 
 #### Highlight & Blur
+
 1. Select Highlight (H) or Blur (B)
 2. Click and drag to select the area to highlight or blur
 3. Release to apply the effect
 
 #### Step Counter
+
 1. Select Step Counter (N)
 2. Click to add numbered steps
 3. Each click increments the step number automatically
@@ -227,6 +234,7 @@ window.TOOLS.toolName = {
 ### State Management
 
 The editor maintains a global STATE object containing:
+
 - Current tool mode
 - Color and line width settings
 - Selected area coordinates
@@ -246,6 +254,7 @@ The editor maintains a global STATE object containing:
 
 1. Navigate to the project directory
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -283,6 +292,7 @@ The editor maintains a global STATE object containing:
 ## Version History
 
 ### v1.2.0
+
 - Improved text annotation interface with toolbar
 - Added support for text repositioning and editing
 - Fixed coordinate system for accurate text clicking
@@ -290,11 +300,13 @@ The editor maintains a global STATE object containing:
 - Added step counter tool
 
 ### v1.1.0
+
 - Added text extraction (OCR) functionality
 - Improved annotation management
 - Better keyboard shortcuts
 
 ### v1.0.0
+
 - Initial release
 - Core annotation tools
 - Screenshot capture functionality
@@ -302,21 +314,25 @@ The editor maintains a global STATE object containing:
 ## Troubleshooting
 
 ### Extension not appearing in toolbar
+
 - Ensure it's loaded in `chrome://extensions/`
 - Check that "Developer mode" is enabled
 - Try reloading the extension
 
 ### Screenshots not saving
+
 - Check browser permissions for file downloads
 - Ensure sufficient disk space
 - Try clearing browser cache
 
 ### Text annotations not clickable
+
 - Make sure you're clicking within the text area
 - Ensure the text tool is properly loaded
 - Try reloading the extension
 
 ### OCR/Text extraction not working
+
 - Check internet connection
 - Verify the OCR sandbox is properly configured
 - Check browser console for errors
@@ -342,4 +358,5 @@ For issues, feature requests, or contributions, please refer to the project repo
 ---
 
 Last Updated: February 2026
-# ProSnap
+
+# PrimeShot
