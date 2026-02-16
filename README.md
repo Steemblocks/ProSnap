@@ -2,6 +2,9 @@
 
 PrimeShot is a powerful Chrome extension for capturing, annotating, and sharing screenshots with ease. It provides a complete suite of annotation tools, text detection, and image manipulation features.
 
+<img width="1365" height="598" alt="image" src="https://github.com/user-attachments/assets/913745bb-bc57-48a4-a848-0e45c78c4b71" />
+
+
 ## Features
 
 ### Core Functionality
