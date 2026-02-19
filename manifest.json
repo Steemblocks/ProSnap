@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "PrimeShot - Screenshot & Annotation Tool",
   "short_name": "PrimeShot",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Capture, annotate, blur, and share screenshots with other powerful built-in tools.",
   "permissions": [
     "activeTab",

@@ -4,7 +4,6 @@ PrimeShot is a powerful Chrome extension for capturing, annotating, and sharing 
 
 <img width="1365" height="598" alt="image" src="https://github.com/user-attachments/assets/913745bb-bc57-48a4-a848-0e45c78c4b71" />
 
-
 ## Features
 
 ### Core Functionality
@@ -293,6 +292,12 @@ The editor maintains a global STATE object containing:
 - Edge 88+ (Chromium-based)
 
 ## Version History
+
+### v1.2.4
+
+- Fixed text annotation duplication and ghosting issues
+- Improved text moving with dedicated handle
+- Fixed undo functionality for text editing
 
 ### v1.2.3
 

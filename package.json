@@ -1,6 +1,6 @@
 {
   "name": "primeshot",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "PrimeShot Screenshot & Annotation Tool",
   "devDependencies": {
     "sharp": "^0.34.5"
