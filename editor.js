@@ -1008,11 +1008,15 @@ function setColor(c, dotEl) {
 
 function undo() {
   if (elements.textInput) {
-    // If text input is open, Undo should cancel it first
-    if (elements.textInput.wrapper.parentNode) {
-      elements.textInput.wrapper.remove();
+    // If text input is open, Undo should cancel it first (restoring the original annotation)
+    if (elements.textInput.cancel) {
+      elements.textInput.cancel();
+    } else {
+      if (elements.textInput.wrapper && elements.textInput.wrapper.parentNode) {
+        elements.textInput.wrapper.remove();
+      }
+      elements.textInput = null;
     }
-    elements.textInput = null;
     return;
   }
 
@@ -1099,6 +1103,10 @@ function createTextInput(x, y, existing = null, editIndex = -1) {
   input.placeholder = "Type here...";
   input.value = text;
 
+  // Prevent native drag of text content (Fixes ghosting/duplication issue)
+  input.setAttribute("draggable", "false");
+  input.addEventListener("dragstart", (e) => e.preventDefault());
+
   // Resize handle (bottom-right corner)
   const resizeHandle = document.createElement("div");
   Object.assign(resizeHandle.style, {
@@ -1112,6 +1120,26 @@ function createTextInput(x, y, existing = null, editIndex = -1) {
     cursor: "nwse-resize",
     zIndex: "10",
   });
+
+  // Add Move Handle
+  const moveHandle = document.createElement("div");
+  moveHandle.innerHTML = "&#10021;";
+  moveHandle.title = "Drag to move";
+  Object.assign(moveHandle.style, {
+    position: "absolute",
+    top: "-24px",
+    left: "0",
+    background: "#333",
+    color: "#fff",
+    padding: "2px 6px",
+    fontSize: "14px",
+    cursor: "move",
+    borderRadius: "3px",
+    userSelect: "none",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+    zIndex: "2001",
+  });
+  wrapper.appendChild(moveHandle);
 
   wrapper.appendChild(input);
   wrapper.appendChild(resizeHandle);
@@ -1176,19 +1204,22 @@ function createTextInput(x, y, existing = null, editIndex = -1) {
   let wrapperStartX = x;
   let wrapperStartY = y;
 
-  wrapper.addEventListener("mousedown", (e) => {
-    // Only start drag if clicking on border area (not the input)
-    if (e.target === wrapper) {
-      e.preventDefault();
-      isDragging = true;
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
-      wrapperStartX = parseInt(wrapper.style.left) || x;
-      wrapperStartY = parseInt(wrapper.style.top) || y;
+  const startDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    wrapperStartX = parseInt(wrapper.style.left) || x;
+    wrapperStartY = parseInt(wrapper.style.top) || y;
 
-      document.addEventListener("mousemove", onDragMove);
-      document.addEventListener("mouseup", onDragUp);
-    }
+    document.addEventListener("mousemove", onDragMove);
+    document.addEventListener("mouseup", onDragUp);
+  };
+
+  moveHandle.addEventListener("mousedown", startDrag);
+  wrapper.addEventListener("mousedown", (e) => {
+    if (e.target === wrapper) startDrag(e);
   });
 
   const onDragMove = (e) => {
@@ -1288,7 +1319,7 @@ function createTextInput(x, y, existing = null, editIndex = -1) {
 
   // Click outside to confirm
   const onClickOutside = (e) => {
-    if (!wrapper.contains(e.target)) {
+    if (!wrapper.contains(e.target) && !moveHandle.contains(e.target)) {
       finish();
       document.removeEventListener("mousedown", onClickOutside);
     }

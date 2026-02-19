@@ -10,19 +10,21 @@ window.TOOLS.highlight = {
 
   // Render completed annotation
   render(ctx, ann) {
-    ctx.globalAlpha = 0.4;
+    ctx.save();
+    ctx.globalAlpha = 0.25; // Reduced opacity for better dark mode visibility
     ctx.fillStyle = ann.color;
     const w = ann.end.x - ann.start.x;
     const h = ann.end.y - ann.start.y;
     ctx.fillRect(ann.start.x, ann.start.y, w, h);
-    ctx.globalAlpha = 1.0;
+    ctx.restore();
   },
 
   // Render preview while drawing
   renderPreview(ctx, state) {
     if (state.mode !== "highlight") return;
 
-    ctx.globalAlpha = 0.4;
+    ctx.save();
+    ctx.globalAlpha = 0.25;
     ctx.fillStyle = state.color;
     ctx.fillRect(
       state.startPos.x,
@@ -30,7 +32,7 @@ window.TOOLS.highlight = {
       state.currentPos.x - state.startPos.x,
       state.currentPos.y - state.startPos.y,
     );
-    ctx.globalAlpha = 1.0;
+    ctx.restore();
   },
 
   // Create new annotation on mouse down

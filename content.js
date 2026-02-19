@@ -37,6 +37,26 @@ async function loadModules() {
       await import("./src/features/text-extraction/index.js");
     TextExtractionManager = textExtractionModule.TextExtractionManager;
 
+    // Load Feature Modules (Tools)
+    try {
+      await import("./features/pen.js");
+      await import("./features/line.js");
+      await import("./features/arrow.js");
+      await import("./features/rect.js");
+      await import("./features/circle.js");
+      await import("./features/highlight.js");
+      await import("./features/blur.js");
+      await import("./features/text.js");
+      await import("./features/step.js");
+      log("Feature modules loaded");
+    } catch (e) {
+      console.warn("Retrying feature modules from src/features...", e);
+      // Fallback for different builds/paths if needed
+      await import("./src/features/pen.js").catch(() => {});
+      // (Add more fallbacks if strictly necessary, but standard structure suggests root features/ for built files or src/features for source)
+      // Actually, looking at file structure, `features` is in root.
+    }
+
     log("All modules loaded successfully");
     return true;
   } catch (err) {
@@ -249,7 +269,11 @@ function cleanup() {
 
   // Clean up text extractor to prevent memory leaks
   if (textExtractor) {
-    textExtractor.cleanup?.(); // Call cleanup if it exists
+    if (typeof textExtractor.cleanup === "function") {
+      textExtractor.cleanup();
+    } else if (typeof textExtractor.exit === "function") {
+      textExtractor.exit();
+    }
     textExtractor = null;
   }
 }
@@ -293,7 +317,26 @@ function onMouseDown(e) {
 
   if (isInside) {
     if (STATE.mode === "text") {
-      createTextInput(e.clientX, e.clientY);
+      const hitIndex = getTextAnnotationAt(e.clientX, e.clientY);
+      if (hitIndex >= 0) {
+        // Edit existing text
+        const ann = STATE.annotations[hitIndex];
+        STATE.annotations.splice(hitIndex, 1);
+        draw();
+        createTextInput(
+          ann.x,
+          ann.y,
+          ann.text,
+          {
+            color: ann.color,
+            font: ann.font,
+            fontSize: ann.fontSize,
+          },
+          ann,
+        ); // Pass ann as restoreData
+      } else {
+        createTextInput(e.clientX, e.clientY);
+      }
     } else if (STATE.mode === "select") {
       // MOVE SELECTION
       STATE.isMoving = true;
@@ -417,7 +460,11 @@ function normalizeSelection() {
 
 function onKeyDown(e) {
   // Don't handle shortcuts if typing in text input
-  if (elements.textInput && document.activeElement === elements.textInput) {
+  // Fix: Check Shadow DOM active element specifically because document.activeElement returns the host
+  const activeElement = elements.shadow
+    ? elements.shadow.activeElement
+    : document.activeElement;
+  if (elements.textInput && activeElement === elements.textInput) {
     return;
   }
 
@@ -478,37 +525,52 @@ function startAnnotation(x, y) {
   const color = STATE.color;
   const lw = STATE.lineWidth;
 
-  if (type === "pen") {
-    STATE.currentAnnotation = { type, color, lw, points: [{ x, y }] };
-  } else if (
-    type === "line" ||
-    type === "arrow" ||
-    type === "rect" ||
-    type === "circle" ||
-    type === "highlight" ||
-    type === "blur"
-  ) {
-    STATE.currentAnnotation = {
-      type,
-      color,
-      lw,
-      start: { x, y },
-      end: { x, y },
-    };
-  } else if (type === "text") {
-    // Create text input at pos
+  if (type === "text") {
     createTextInput(x, y);
-    STATE.isDrawing = false; // Input handles itself
+    STATE.isDrawing = false;
+    return;
+  }
+
+  // Use modular tool system
+  if (window.TOOLS && window.TOOLS[type]) {
+    // Special handling for step tool which might need extra args (step counter)
+    if (type === "step") {
+      // Ideally step counter should be in STATE or passed in.
+      // For now, let's init a counter if not present
+      if (typeof STATE.stepCounter === "undefined") STATE.stepCounter = 1;
+
+      STATE.currentAnnotation = window.TOOLS[type].create(
+        x,
+        y,
+        color,
+        STATE.stepCounter,
+      );
+      STATE.stepCounter++;
+      STATE.isDrawing = false; // Step is a single click, not a drag
+      STATE.annotations.push(STATE.currentAnnotation);
+      STATE.currentAnnotation = null;
+    } else {
+      STATE.currentAnnotation = window.TOOLS[type].create(x, y, color, lw);
+    }
+  } else {
+    console.warn("Tool not found:", type);
   }
 }
 
 function updateAnnotation(x, y) {
   if (!STATE.currentAnnotation) return;
 
-  if (STATE.currentAnnotation.type === "pen") {
-    STATE.currentAnnotation.points.push({ x, y });
-  } else {
-    STATE.currentAnnotation.end = { x, y };
+  if (window.TOOLS && window.TOOLS[STATE.currentAnnotation.type]) {
+    const tool = window.TOOLS[STATE.currentAnnotation.type];
+
+    // Some tools use addPoint (pen), others use update (shapes)
+    if (tool.addPoint) {
+      tool.addPoint(STATE.currentAnnotation, x, y);
+    } else if (tool.update) {
+      const updatedEnd = tool.update(x, y);
+      // Most tools return {x,y} for end point
+      if (updatedEnd) STATE.currentAnnotation.end = updatedEnd;
+    }
   }
 }
 
@@ -516,41 +578,44 @@ function finishAnnotation() {
   if (!STATE.currentAnnotation) return;
 
   const ann = STATE.currentAnnotation;
-  let shouldSave = true;
+  const type = ann.type;
 
-  // Validate based on annotation type (match editor.js behavior)
-  if (ann.type === "pen") {
-    shouldSave = ann.points && ann.points.length > 1;
-  } else if (ann.type === "line" || ann.type === "arrow") {
-    const dx = ann.end.x - ann.start.x;
-    const dy = ann.end.y - ann.start.y;
-    shouldSave = Math.abs(dx) > 5 || Math.abs(dy) > 5;
-  } else if (ann.type === "rect" || ann.type === "highlight") {
-    const w = Math.abs(ann.end.x - ann.start.x);
-    const h = Math.abs(ann.end.y - ann.start.y);
-    shouldSave = w > 5 && h > 5;
-  } else if (ann.type === "circle") {
-    const rx = Math.abs(ann.end.x - ann.start.x) / 2;
-    const ry = Math.abs(ann.end.y - ann.start.y) / 2;
-    shouldSave = rx > 3 && ry > 3;
-  } else if (ann.type === "blur") {
-    const w = Math.abs(ann.end.x - ann.start.x);
-    const h = Math.abs(ann.end.y - ann.start.y);
-    shouldSave = w > 10 && h > 10;
-  } else if (ann.type === "text") {
-    shouldSave = ann.text && ann.text.trim().length > 0;
+  if (window.TOOLS && window.TOOLS[type]) {
+    const tool = window.TOOLS[type];
+
+    // Optional finish step
+    if (tool.finish) {
+      tool.finish(ann);
+    }
+
+    // Validation
+    if (tool.shouldSave && tool.shouldSave(ann)) {
+      STATE.annotations.push(ann);
+    } else if (!tool.shouldSave) {
+      // Default to saving if no validation provided
+      STATE.annotations.push(ann);
+    }
   }
 
-  if (shouldSave) {
-    STATE.annotations.push(ann);
-  }
   STATE.currentAnnotation = null;
 }
 
 function undo() {
+  if (elements.textInput) {
+    if (elements.textInput.cancel) {
+      elements.textInput.cancel();
+    } else {
+      elements.textInput.remove();
+      elements.textInput = null;
+    }
+    return;
+  }
+
   if (STATE.annotations.length > 0) {
     STATE.annotations.pop();
-    // Note: caller is responsible for calling draw()
+    // Note: caller is responsible for calling draw() usually,
+    // but here we should redraw to reflect undo
+    draw();
   }
 }
 
@@ -636,32 +701,37 @@ function renderAnnotations(ctx) {
   STATE.annotations.forEach((ann) => renderAnnotation(ctx, ann));
 }
 
+// Helper functions like drawArrow are now in modules
 function renderAnnotation(ctx, ann) {
-  ctx.beginPath();
-  ctx.strokeStyle = ann.color;
-  ctx.lineWidth = ann.lw;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.fillStyle = ann.color;
+  // Use tool module if available
+  if (window.TOOLS && window.TOOLS[ann.type]) {
+    window.TOOLS[ann.type].render(ctx, ann);
+    return;
+  }
 
+  // Fallback for tools not yet modularized (should be none with this refactor)
   if (ann.type === "pen") {
     if (ann.points.length < 2) return;
+    ctx.beginPath();
     ctx.moveTo(ann.points[0].x, ann.points[0].y);
     for (let i = 1; i < ann.points.length; i++)
       ctx.lineTo(ann.points[i].x, ann.points[i].y);
     ctx.stroke();
   } else if (ann.type === "line") {
+    ctx.beginPath();
     ctx.moveTo(ann.start.x, ann.start.y);
     ctx.lineTo(ann.end.x, ann.end.y);
     ctx.stroke();
   } else if (ann.type === "arrow") {
-    drawArrow(ctx, ann.start.x, ann.start.y, ann.end.x, ann.end.y);
+    // Arrow logic moved to features/arrow.js
+    if (window.TOOLS && window.TOOLS.arrow) {
+      window.TOOLS.arrow.render(ctx, ann);
+    }
   } else if (ann.type === "rect") {
     const w = ann.end.x - ann.start.x;
     const h = ann.end.y - ann.start.y;
     ctx.strokeRect(ann.start.x, ann.start.y, w, h);
   } else if (ann.type === "circle") {
-    // Draw ellipse
     const cx = (ann.start.x + ann.end.x) / 2;
     const cy = (ann.start.y + ann.end.y) / 2;
     const rx = Math.abs(ann.end.x - ann.start.x) / 2;
@@ -670,69 +740,17 @@ function renderAnnotation(ctx, ann) {
     ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
     ctx.stroke();
   } else if (ann.type === "highlight") {
-    // Semi-transparent highlight
+    ctx.save();
     ctx.globalAlpha = 0.4;
     const w = ann.end.x - ann.start.x;
     const h = ann.end.y - ann.start.y;
     ctx.fillRect(ann.start.x, ann.start.y, w, h);
-    ctx.globalAlpha = 1.0;
-  } else if (ann.type === "blur") {
-    // Pixelated blur effect
-    const x = Math.min(ann.start.x, ann.end.x);
-    const y = Math.min(ann.start.y, ann.end.y);
-    const w = Math.abs(ann.end.x - ann.start.x);
-    const h = Math.abs(ann.end.y - ann.start.y);
-    if (w > 0 && h > 0) {
-      // Get the image data and pixelate
-      try {
-        const pixelSize = 10;
-        const imageData = ctx.getImageData(x, y, w, h);
-        const data = imageData.data;
-
-        for (let py = 0; py < h; py += pixelSize) {
-          for (let px = 0; px < w; px += pixelSize) {
-            // Get average color of pixel block
-            let r = 0,
-              g = 0,
-              b = 0,
-              count = 0;
-            for (let dy = 0; dy < pixelSize && py + dy < h; dy++) {
-              for (let dx = 0; dx < pixelSize && px + dx < w; dx++) {
-                const i = ((py + dy) * w + (px + dx)) * 4;
-                r += data[i];
-                g += data[i + 1];
-                b += data[i + 2];
-                count++;
-              }
-            }
-            r = Math.round(r / count);
-            g = Math.round(g / count);
-            b = Math.round(b / count);
-
-            // Apply average to all pixels in block
-            for (let dy = 0; dy < pixelSize && py + dy < h; dy++) {
-              for (let dx = 0; dx < pixelSize && px + dx < w; dx++) {
-                const i = ((py + dy) * w + (px + dx)) * 4;
-                data[i] = r;
-                data[i + 1] = g;
-                data[i + 2] = b;
-              }
-            }
-          }
-        }
-        ctx.putImageData(imageData, x, y);
-      } catch (e) {
-        // Fallback: draw a gray box if we can't access image data
-        ctx.fillStyle = "#888";
-        ctx.fillRect(x, y, w, h);
-      }
-    }
+    ctx.restore();
   } else if (ann.type === "text") {
     const fontSize = ann.fontSize || 20;
     const fontFamily = ann.font || "Arial";
     ctx.font = `${fontSize}px "${fontFamily}", sans-serif`;
     ctx.textBaseline = "top";
-    // Handle multi-line
     const lineHeight = fontSize * 1.2;
     const lines = ann.text.split("\n");
     for (let i = 0; i < lines.length; i++) {
@@ -741,104 +759,223 @@ function renderAnnotation(ctx, ann) {
   }
 }
 
-function drawArrow(ctx, x1, y1, x2, y2) {
-  const headLength = 15;
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const angle = Math.atan2(dy, dx);
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-
-  // Head
-  ctx.beginPath();
-  ctx.moveTo(x2, y2);
-  ctx.lineTo(
-    x2 - headLength * Math.cos(angle - Math.PI / 6),
-    y2 - headLength * Math.sin(angle - Math.PI / 6),
-  );
-  ctx.lineTo(
-    x2 - headLength * Math.cos(angle + Math.PI / 6),
-    y2 - headLength * Math.sin(angle + Math.PI / 6),
-  );
-  ctx.lineTo(x2, y2);
-  ctx.fill();
-}
+// Helper functions like drawArrow are now in modules
 
 // --- Text Input ---
-function createTextInput(x, y) {
+function getTextAnnotationAt(x, y) {
+  const ctx = elements.ctx;
+  if (!ctx) return -1;
+
+  // Check from top (newest) to bottom
+  for (let i = STATE.annotations.length - 1; i >= 0; i--) {
+    const ann = STATE.annotations[i];
+    if (ann.type === "text") {
+      ctx.save();
+      ctx.font = `${ann.fontSize}px "${ann.font}", sans-serif`;
+      const lines = ann.text.split("\n");
+      let maxWidth = 0;
+      lines.forEach((line) => {
+        maxWidth = Math.max(maxWidth, ctx.measureText(line).width);
+      });
+      const lineHeight = ann.fontSize * 1.2;
+      const height = lines.length * lineHeight;
+      ctx.restore();
+
+      const padding = 10;
+      if (
+        x >= ann.x - padding &&
+        x <= ann.x + maxWidth + padding &&
+        y >= ann.y - padding &&
+        y <= ann.y + height + padding
+      ) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+
+function createTextInput(
+  x,
+  y,
+  initialText = "",
+  options = {},
+  restoreData = null,
+) {
   log("Creating text input at", x, y);
 
-  // Remove existing text input if any
+  // Force confirm existing input if any (prevents data loss)
   if (elements.textInput) {
-    elements.textInput.remove();
-    elements.textInput = null;
+    confirmText(elements.textInput);
   }
+
+  // Restore options if editing
+  if (options.color) STATE.color = options.color;
+  if (options.font) STATE.font = options.font;
+  if (options.fontSize) STATE.fontSize = options.fontSize;
+
+  // Wrapper for handle + input
+  const wrapper = document.createElement("div");
+  wrapper.id = "primeshot-text-wrapper";
+  wrapper.style.position = "absolute";
+  wrapper.style.left = x + "px";
+  wrapper.style.top = y + "px";
+  wrapper.style.zIndex = "2147483647";
+
+  // Prevent drag ghosting on wrapper too
+  wrapper.setAttribute("draggable", "false");
+  wrapper.addEventListener("dragstart", (e) => e.preventDefault());
+
+  // Move Handle
+  const handle = document.createElement("div");
+  handle.innerHTML = "&#10021;";
+  handle.title = "Drag to move";
+  handle.style.cssText = `
+    position: absolute; 
+    top: -24px; 
+    left: 0; 
+    background: #333; 
+    color: #fff; 
+    padding: 2px 6px; 
+    font-size: 14px; 
+    cursor: move; 
+    border-radius: 3px; 
+    user-select: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    pointer-events: auto;
+  `;
+
+  // Drag Logic for Handle
+  handle.addEventListener("mousedown", (e) => {
+    e.preventDefault(); // Prevent input blur
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    // Get current offset logic
+    const rect = wrapper.getBoundingClientRect();
+    const startLeft = parseFloat(wrapper.style.left) || rect.left;
+    const startTop = parseFloat(wrapper.style.top) || rect.top;
+
+    function onDrag(ev) {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      wrapper.style.left = startLeft + dx + "px";
+      wrapper.style.top = startTop + dy + "px";
+    }
+
+    function onStop() {
+      window.removeEventListener("mousemove", onDrag);
+      window.removeEventListener("mouseup", onStop);
+      if (elements.textInput) elements.textInput.focus();
+    }
+
+    window.addEventListener("mousemove", onDrag);
+    window.addEventListener("mouseup", onStop);
+  });
 
   const input = document.createElement("textarea");
   input.id = "primeshot-text-input";
   input.className = "primeshot-text-input";
-  input.style.left = x + "px";
-  input.style.top = y + "px";
+  input.style.position = "static";
+  input.style.marginTop = "0";
+  input.style.background = "rgba(0,0,0,0.5)";
+  input.style.border = "1px solid rgba(255,255,255,0.5)";
+  input.style.borderRadius = "4px";
+  input.style.padding = "4px";
   input.style.color = STATE.color;
   input.style.fontFamily = STATE.font;
   input.style.fontSize = STATE.fontSize + "px";
+  input.style.minWidth = "100px";
+  input.style.minHeight = "1.5em";
   input.placeholder = "Type here...";
+  input.value = initialText;
 
-  // Prevent event propagation to avoid triggering canvas events
+  // Prevent native drag of text content (Fixes ghosting/duplication issue)
+  input.setAttribute("draggable", "false");
+  input.addEventListener("dragstart", (e) => e.preventDefault());
+
+  // Prevent event propagation
   input.addEventListener("mousedown", (e) => e.stopPropagation());
   input.addEventListener("click", (e) => e.stopPropagation());
 
   input.addEventListener("blur", () => {
-    // Small delay to prevent immediate blur on creation
-    setTimeout(() => confirmText(input, x, y), 50);
+    // Small delay
+    setTimeout(() => confirmText(input), 50);
   });
 
+  input.cancel = () => {
+    if (restoreData) {
+      STATE.annotations.push(restoreData);
+      draw();
+    }
+    if (wrapper.parentNode) wrapper.remove();
+    else input.remove();
+    elements.textInput = null;
+  };
+
   input.addEventListener("keydown", (e) => {
-    e.stopPropagation(); // Prevent global keydown handler
+    e.stopPropagation();
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       input.blur();
     }
     if (e.key === "Escape") {
-      input.value = ""; // Clear and cancel
-      input.blur();
+      input.cancel();
     }
   });
 
-  // Append to overlay (which is in Shadow DOM)
-  elements.overlay.appendChild(input);
+  wrapper.appendChild(handle);
+  wrapper.appendChild(input);
 
-  // Focus with a small delay to ensure DOM is ready
+  // Append to overlay
+  elements.overlay.appendChild(wrapper);
+
+  // Focus
   setTimeout(() => {
     input.focus();
+    if (initialText)
+      input.setSelectionRange(initialText.length, initialText.length);
     log("Text input focused");
   }, 10);
 
   elements.textInput = input;
 }
 
-function confirmText(input, x, y) {
+function confirmText(input) {
   // Prevent double-processing
   if (!input || !input.parentNode) return;
 
   const text = input.value.trim();
   if (text) {
+    // Calculate final position from element
+    const rect = input.getBoundingClientRect();
+    // If inside wrapper, rect handles the position.
+
+    // Note: getBoundingClientRect checks viewport.
+    // If wrapper is moved, input moves with it.
+
     STATE.annotations.push({
       type: "text",
       text: text,
       color: STATE.color,
       font: STATE.font,
       fontSize: STATE.fontSize,
-      x: x,
-      y: y,
+      x: rect.left,
+      y: rect.top,
       lw: 1,
     });
     log("Text annotation added:", text);
     draw();
   }
 
-  input.remove();
+  // Remove wrapper if it exists, otherwise plain input
+  if (input.parentNode && input.parentNode.id === "primeshot-text-wrapper") {
+    input.parentNode.remove();
+  } else {
+    input.remove();
+  }
   elements.textInput = null;
 }
 

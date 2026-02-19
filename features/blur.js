@@ -16,6 +16,12 @@ window.TOOLS.blur = {
     const h = Math.abs(ann.end.y - ann.start.y);
 
     if (w > 0 && h > 0) {
+      // Optimization: Cache blurred result to avoid expensive getImageData loop on every frame
+      if (ann._cachedData && ann._cachedW === w && ann._cachedH === h) {
+        ctx.putImageData(ann._cachedData, x, y);
+        return;
+      }
+
       try {
         const pixelSize = 10;
         const imageData = ctx.getImageData(x, y, w, h);
@@ -53,6 +59,11 @@ window.TOOLS.blur = {
           }
         }
         ctx.putImageData(imageData, x, y);
+
+        // Cache the processed data
+        ann._cachedData = imageData;
+        ann._cachedW = w;
+        ann._cachedH = h;
       } catch (e) {
         // Fallback: draw a gray box if we can't access image data
         ctx.fillStyle = "rgba(128, 128, 128, 0.7)";

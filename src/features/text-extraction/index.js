@@ -2,7 +2,7 @@
  * Text Extraction Feature Manager
  * Orchestrates OCR and text panel display
  */
-import { extractTextFromImage } from "./ocr.js";
+import { extractTextFromImage, cleanupOCR } from "./ocr.js";
 import { TextPanel } from "./text-panel.js";
 import { STATE } from "../../shared/state.js";
 import { showToast } from "../../utils/toast.js";
@@ -66,6 +66,7 @@ export class TextExtractionManager {
   exit() {
     STATE.exitTextMode();
     this.textPanel.cleanup();
+    cleanupOCR();
 
     // Trigger a redraw to restore the annotation view
     window.dispatchEvent(
